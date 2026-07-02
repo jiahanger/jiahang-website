@@ -1,10 +1,11 @@
-import { prisma } from "@/lib/prisma";
+import { getInquiries } from "@/lib/db";
 
 export default async function AdminDashboard() {
-  const total = await prisma.inquiry.count();
-  const pending = await prisma.inquiry.count({ where: { status: "待联系" } });
-  const contacted = await prisma.inquiry.count({ where: { status: "已联系" } });
-  const done = await prisma.inquiry.count({ where: { status: "已成交" } });
+  const inquiries = await getInquiries();
+  const total = inquiries.length;
+  const pending = inquiries.filter((i) => i.status === "待联系").length;
+  const contacted = inquiries.filter((i) => i.status === "已联系").length;
+  const done = inquiries.filter((i) => i.status === "已成交").length;
 
   return (
     <div>

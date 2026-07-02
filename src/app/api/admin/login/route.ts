@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { verifyAdmin, initAdmin } from "@/lib/db";
 import { signToken } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();
-    const admin = await prisma.admin.findUnique({ where: { username } });
+    await initAdmin();
 
-    if (!admin || !(await bcrypt.compare(password, admin.passwordHash))) {
+    const valid = await verifyAdmin(username, password);
+    if (!valid) {
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
